@@ -6,6 +6,7 @@ npm install
 npm install prisma @prisma/client sqlite3
 npx prisma init
 npm install sharp # webp
+npm install sweetalert2
 
 #  สร้าง schema
 

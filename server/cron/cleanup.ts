@@ -5,26 +5,18 @@ import path from "path";
 
 const prisma = new PrismaClient();
 
-// ไว้ทดสอบ cronjob
-// cron.schedule("*/5 * * * * *", () => {
-//   console.log("⏳ Cronjob ทำงานทุก 5 วินาที");
-// });
-
-cron.schedule("0 0 */7 * *", async () => {
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
+// ทำงานทุกวันอาทิตย์ เวลา 00:00
+cron.schedule("0 0 * * 0", async () => {
   try {
-    const oldNotes = await prisma.note.findMany({
-      where: {
-        createdAt: {
-          lt: sevenDaysAgo,
-        },
-      },
-    });
+    const allNotes = await prisma.note.findMany();
 
-    for (const note of oldNotes) {
+    if (allNotes.length === 0) {
+      console.log("📭 ไม่มีโน้ตให้ลบ");
+      return;
+    }
+
+    for (const note of allNotes) {
       if (note.image) {
-        // ลบไฟล์ภาพที่อยู่ใน public
         const imagePath = path.join(process.cwd(), "public", note.image);
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath);
@@ -34,15 +26,12 @@ cron.schedule("0 0 */7 * *", async () => {
         }
       }
 
-      // ลบข้อมูล Note จาก DB
       await prisma.note.delete({
-        where: {
-          id: note.id,
-        },
+        where: { id: note.id },
       });
       console.log(`✅ ลบโน้ต id: ${note.id}`);
     }
   } catch (err) {
-    console.error("❌ ลบโน้ตเก่าล้มเหลว:", err);
+    console.error("❌ ลบโน้ตล้มเหลว:", err);
   }
 });
