@@ -25,12 +25,9 @@
         @change="(e: any) => handleCreateImage(e.target.files?.[0])"
         class="file-input file-input-bordered w-full"
       />
-      <div
-        v-if="createImagePreview"
-        class="my-4 flex items-center justify-center"
-      >
+      <div v-if="imagePreview" class="my-4 flex items-center justify-center">
         <img
-          :src="createImagePreview"
+          :src="imagePreview"
           alt="Image Preview"
           class="rounded-full h-36 w-36"
         />
@@ -101,7 +98,7 @@
       </div>
     </div>
 
-    <div v-else class="text-center">📝 ไม่มีโน้ตนตอนนี้ เพิ่มโน้ตสิ</div>
+    <div v-else class="text-center">📝 ไม่มีโน้ตตอนนี้ เพิ่มโน้ตสิ</div>
   </div>
 </template>
 
@@ -109,7 +106,7 @@
 import Swal from "sweetalert2";
 
 const notes = ref<any[]>([]);
-const createImagePreview = ref<string | null>(null);
+const imagePreview = ref<string | null>(null);
 const editImagePreview = ref<string | null>(null);
 const selectedFile = ref<File | null>(null);
 
@@ -150,7 +147,7 @@ const handleCreateImage = (file: File | undefined) => {
 
   selectedFile.value = file;
   // image preview
-  createImagePreview.value = URL.createObjectURL(file);
+  imagePreview.value = URL.createObjectURL(file);
 };
 
 const handleEditImage = async (e: Event) => {
@@ -175,7 +172,7 @@ const createNote = async () => {
 
     newNote.value = { header: "", content: "", image: "" };
     selectedFile.value = null;
-    createImagePreview.value = null;
+    imagePreview.value = null;
 
     const fileInput =
       document.querySelector<HTMLInputElement>('input[type="file"]');
